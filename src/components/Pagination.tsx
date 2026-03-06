@@ -1,9 +1,9 @@
 export const Pagination: React.FC<{
   total: number;
   perPage: number;
-  currentPage: number;
+  currentPage?: number;
   onPageChange: (page: number) => void;
-}> = ({ total, perPage, currentPage, onPageChange }) => {
+}> = ({ total, perPage, currentPage = 1, onPageChange }) => {
   const totalPages = Math.ceil(total / perPage);
 
   return (
@@ -16,7 +16,9 @@ export const Pagination: React.FC<{
           aria-disabled={currentPage === 1 ? 'true' : 'false'}
           onClick={e => {
             e.preventDefault();
-            onPageChange(currentPage > 1 ? currentPage - 1 : 1);
+            if (currentPage > 1) {
+              onPageChange(currentPage - 1);
+            }
           }}
         >
           «
@@ -52,9 +54,9 @@ export const Pagination: React.FC<{
           aria-disabled={currentPage === totalPages ? 'true' : 'false'}
           onClick={e => {
             e.preventDefault();
-            onPageChange(
-              currentPage < totalPages ? currentPage + 1 : totalPages,
-            );
+            if (currentPage < totalPages) {
+              onPageChange(currentPage + 1);
+            }
           }}
         >
           »

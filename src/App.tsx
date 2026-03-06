@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './App.css';
 import { getNumbers } from './utils';
 import { Pagination } from './components/Pagination';
@@ -7,15 +8,23 @@ import { Pagination } from './components/Pagination';
 const items = getNumbers(1, 42).map(n => `Item ${n}`);
 
 export const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const perPage = Number(searchParams.get('perPage')) || 5;
   const visibleItems = items.slice(
     (currentPage - 1) * perPage,
     currentPage * perPage,
   );
-
   const startItem = (currentPage - 1) * perPage + 1;
   const endItem = Math.min(currentPage * perPage, items.length);
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+
+    params.set('page', String(page));
+    params.set('perPage', String(perPage));
+    setSearchParams(params);
+  };
 
   return (
     <div className="container">
@@ -26,13 +35,16 @@ export const App: React.FC = () => {
       <div className="form-group row">
         <div className="col-3 col-sm-2 col-xl-1">
           <select
-            data-cy="perPageSelector"
             id="perPageSelector"
+            data-cy="perPageSelector"
             className="form-control"
             value={perPage}
             onChange={e => {
-              setPerPage(Number(e.target.value));
-              setCurrentPage(1);
+              const params = new URLSearchParams(searchParams);
+
+              params.set('page', '1');
+              params.set('perPage', e.target.value);
+              setSearchParams(params);
             }}
           >
             <option value="3">3</option>
@@ -57,7 +69,7 @@ export const App: React.FC = () => {
         total={items.length}
         perPage={perPage}
         currentPage={currentPage}
-        onPageChange={setCurrentPage}
+        onPageChange={handlePageChange}
       />
     </div>
   );
